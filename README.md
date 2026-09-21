@@ -21,9 +21,20 @@ Progres disimpan otomatis di localStorage browser. Tombol mulai ulang meminta ko
 
 - `src/data.js`: asumsi, kejadian, bobot skor, dan materi edukasi.
 - `src/engine.js`: perhitungan murni anggaran, realisasi, selisih, dan skor.
-- `src/main.jsx`: komponen React dan alur permainan.
-- `src/style.css`: tema, ilustrasi kedai, animasi, dan responsivitas.
+- `src/main.jsx`: HUD dan perpindahan fase permainan.
+- `src/learning.jsx`: intro tiga kartu, misi, tutorial lima tahap, Teala, dan siklus budgeting.
+- `src/gameplay.jsx`: layar perencanaan, kejadian, keputusan, hasil, evaluasi, transisi, dan ringkasan.
+- `src/shared.jsx`: komponen dari versi awal yang dipakai kembali, termasuk ilustrasi kedai, input, tabel selisih, dan laporan akhir.
+- `src/journey.js`: pemulihan progres, penentuan minggu, dan insight edukasi.
+- `src/style.css` dan `src/game.css`: tema kedai yang dipertahankan serta sistem tipografi, HUD, dan visual onboarding. Inter disertakan lokal.
 - `tests/engine.test.js`: pengujian rumus dan skenario kejadian.
+- `tests/browser-check.mjs`: alur empat minggu di desktop/mobile, hasil sesuai mesin simulasi, progres lama, keputusan, dan mulai ulang. Jalankan `node tests/browser-check.mjs` saat dev server aktif; memerlukan Microsoft Edge.
+
+## Alur pemain baru
+
+Landing → intro 3 kartu → misi → tutorial → anggaran → kejadian → keputusan (jika diperlukan) → hasil aktual → evaluasi → transisi minggu → laporan akhir setelah minggu 4.
+
+Rumus dan data bisnis versi awal dipertahankan. Hasil hanya dicatat ketika simulasi dijalankan; membuka evaluasi, kembali ke hasil, atau memuat ulang tidak menambah kas atau riwayat. Save key tetap `tealab-game-v1`, sehingga progres lama dapat dilanjutkan. Panduan selalu tersedia dari HUD dan ringkasan seluruh minggu tersedia pada laporan akhir.
 
 ## Asumsi penilaian
 

@@ -1,0 +1,45 @@
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({channel:'msedge',headless:true});
+const page=await browser.newPage({viewport:{width:1440,height:1000}});
+const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+await page.goto('http://localhost:5173');
+await page.screenshot({path:'test-results/landing-desktop.png',fullPage:true,animations:'disabled'});
+await page.getByRole('button',{name:'Cara bermain',exact:true}).last().click();
+await page.getByRole('dialog').waitFor();
+await page.getByRole('button',{name:'Siap, ayo mulai'}).click();
+await page.getByRole('heading',{name:'Racikan anggaran'}).waitFor();
+await page.screenshot({path:'test-results/planning-desktop.png',fullPage:true,animations:'disabled'});
+await page.getByRole('spinbutton',{name:'Target penjualan',exact:true}).fill('900');
+assert.equal(await page.getByRole('button',{name:'Konfirmasi anggaran'}).isDisabled(),true);
+await page.getByRole('spinbutton',{name:'Target penjualan',exact:true}).fill('500');
+for(let i=1;i<=4;i++){
+ await page.evaluate((index)=>{ Math.random=()=>[.8,.9,.3,.55][index-1]; },i);
+ await page.getByRole('button',{name:'Konfirmasi anggaran'}).click();
+ await page.reload();
+ const decision=page.getByRole('button',{name:/Ya, (ikut festival|ambil tawaran)/});
+ if(await decision.count()){if(i===2)await page.getByRole('button',{name:'Tidak, lanjutkan rencana'}).click();else await decision.click();}else await page.getByRole('button',{name:'Jalankan kedai & lihat hasil'}).click();
+ await page.getByRole('heading',{name:`Hasil minggu ${i}`,exact:true}).waitFor();
+ assert.equal(await page.locator('tbody tr').count(),5);
+ if(i===1)await page.screenshot({path:'test-results/result-desktop.png',fullPage:true,animations:'disabled'});
+ await page.getByRole('button',{name:i===4?'Lihat laporan akhir':'Rencanakan minggu berikutnya'}).click();
+}
+await page.getByRole('heading',{name:'Laporan akhir bisnis'}).waitFor();
+await page.screenshot({path:'test-results/final-desktop.png',fullPage:true,animations:'disabled'});
+await page.reload();
+await page.getByRole('heading',{name:'Laporan akhir bisnis'}).waitFor();
+await page.getByRole('button',{name:'Main lagi',exact:true}).click();
+await page.getByRole('button',{name:'Batal',exact:true}).click();
+await page.getByRole('heading',{name:'Laporan akhir bisnis'}).waitFor();
+await page.getByRole('button',{name:'Main lagi',exact:true}).click();
+await page.getByRole('button',{name:'Ya, mulai ulang'}).click();
+await page.setViewportSize({width:390,height:844});
+await page.screenshot({path:'test-results/landing-mobile.png',fullPage:true,animations:'disabled'});
+assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+await page.getByRole('button',{name:'Mulai bermain',exact:true}).click();
+await page.screenshot({path:'test-results/planning-mobile.png',fullPage:true,animations:'disabled'});
+assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+assert.deepEqual(errors,[]);
+console.log('PASS: landing → instructions → four weeks → report; reload persistence; validation; restart; desktop/mobile; no browser console errors.');
+await browser.close();
+
